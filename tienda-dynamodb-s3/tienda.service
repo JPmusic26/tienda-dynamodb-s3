@@ -1,0 +1,13 @@
+[Unit]
+Description=Tienda Flask
+After=network.target
+
+[Service]
+WorkingDirectory=/home/ec2-user/tienda
+Environment=S3_BUCKET=jorge-privado
+Environment=AWS_REGION=us-east-1
+ExecStart=/usr/bin/python3 /home/ec2-user/tienda/app.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
