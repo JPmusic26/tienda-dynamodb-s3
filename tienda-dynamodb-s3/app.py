@@ -9,6 +9,7 @@ from werkzeug.utils import secure_filename
 
 REGION = os.getenv("AWS_REGION", "us-east-1")
 BUCKET = os.getenv("S3_BUCKET", "jorge-privado")
+ACCOUNT_ID = os.environ["AWS_ACCOUNT_ID"]  # ID de 12 dígitos de tu cuenta AWS
 CARPETA = os.path.dirname(os.path.abspath(__file__))
 
 # Sin llaves de acceso: boto3 usa el rol IAM asociado a la instancia EC2
@@ -155,7 +156,15 @@ def nuevo_producto():
     foto = request.files.get("imagen")
     if foto and foto.filename:
         clave = f"productos/{item['productoId']}-{secure_filename(foto.filename)}"
-        s3.upload_fileobj(foto, BUCKET, clave, ExtraArgs={"ContentType": foto.mimetype})
+        s3.upload_fileobj(
+            foto,
+            BUCKET,
+            clave,
+            ExtraArgs={
+                "ContentType": foto.mimetype,
+                "ExpectedBucketOwner": ACCOUNT_ID,
+            },
+        )
         item["imagen"] = clave
 
     agregar("productos", item)
@@ -164,9 +173,11 @@ def nuevo_producto():
 
 @app.get("/api/s3/archivos")
 def archivos_s3():
-    r = s3.list_objects_v2(Bucket=BUCKET, Prefix="productos/")
+    r = s3.list_objects_v2(
+        Bucket=BUCKET, Prefix="productos/", ExpectedBucketOwner=ACCOUNT_ID
+    )
     return jsonify([{"archivo": o["Key"], "bytes": o["Size"]} for o in r.get("Contents", [])])
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=80)
+    app.run(host=os.getenv("HOST", "127.0.0.1"), port=int(os.getenv("PORT", "80")))
