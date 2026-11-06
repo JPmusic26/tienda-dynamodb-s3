@@ -1,0 +1,17 @@
+[Unit]
+Description=Tienda Flask
+After=network.target
+
+[Service]
+WorkingDirectory=/home/ec2-user/tienda
+Environment=S3_BUCKET=jorge-privado
+Environment=AWS_REGION=us-east-1
+# Genera una clave propia: python3 -c "import secrets; print(secrets.token_hex(32))"
+Environment=SECRET_KEY=CAMBIA-ESTA-CLAVE
+# Código que se pide al crear una cuenta (déjalo vacío para registro abierto)
+Environment=CODIGO_REGISTRO=CAMBIA-ESTE-CODIGO
+ExecStart=/usr/bin/python3 /home/ec2-user/tienda/app.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

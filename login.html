@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrar · Tienda Digital Dynamo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* colores tomados del panel */
+  --bg:#f6f7f9; --card:#fff; --tx:#1d2733; --mut:#5d6b7a; --ac:#1f6f5c; --bd:#d9dee4; --err:#b3261e;
+  --btn-tx:#fff;
+  --panel:#1f6f5c; --panel-tx:#fff; --panel-etq:#cdeee3; --panel-mut:rgba(255,255,255,.72); --panel-pt:rgba(255,255,255,.14); --panel-arco:#fff;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#14181d; --card:#1c2229; --tx:#e8edf2; --mut:#9aa7b4; --ac:#4fb59a; --bd:#2c353f; --err:#f2938c;
+  --btn-tx:#0e1a16;
+  --panel:#1c2229; --panel-tx:#e8edf2; --panel-etq:#4fb59a; --panel-mut:#9aa7b4; --panel-pt:rgba(232,237,242,.07); --panel-arco:#4fb59a;
+}}
+*{box-sizing:border-box;margin:0}
+body{min-height:100vh;min-height:100dvh;display:grid;grid-template-columns:1.15fr 1fr;font-family:var(--display);background:var(--bg);color:var(--tx)}
+
+.marca{position:relative;overflow:hidden;background:var(--panel);color:var(--panel-tx);padding:40px 48px;display:flex;flex-direction:column;justify-content:space-between;
+  background-image:radial-gradient(var(--panel-pt) 1px,transparent 1.5px);background-size:22px 22px}
+.etiqueta{display:flex;align-items:center;gap:10px;font:500 .75rem/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--panel-mut)}
+.etiqueta::before{content:"";width:10px;height:10px;background:var(--panel-etq)}
+.titulo{position:relative;z-index:1}
+.titulo small{display:block;margin-bottom:18px;font:500 .8rem/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--panel-etq)}
+.titulo h1{font-weight:800;font-size:clamp(3.5rem,9vw,8.5rem);line-height:.88;letter-spacing:-.04em}
+.pie{position:relative;z-index:1;font:400 .75rem/1.6 var(--mono);color:var(--panel-mut)}
+.arcos{position:absolute;right:-140px;bottom:-140px;width:600px;color:var(--panel-arco);opacity:.3;animation:gira 90s linear infinite}
+
+.acceso{display:flex;align-items:center;justify-content:center;padding:48px}
+.caja{width:100%;max-width:380px}
+.caja h2{font-size:2rem;font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
+.intro{color:var(--mut);line-height:1.5;margin-bottom:32px}
+.campo{position:relative;margin-bottom:22px}
+.campo label{display:block;margin-bottom:8px;font:500 .7rem/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+.campo input{width:100%;padding:8px 0 10px;background:transparent;border:0;border-bottom:2px solid var(--bd);border-radius:0;outline:0;font:500 1.1rem var(--display);color:var(--tx);transition:border-color .2s,box-shadow .2s}
+.campo input:focus{border-color:var(--ac);box-shadow:0 1px 0 0 var(--ac)}
+.campo input:-webkit-autofill{-webkit-box-shadow:0 0 0 40px var(--bg) inset;-webkit-text-fill-color:var(--tx)}
+.ver{position:absolute;right:0;bottom:10px;padding:4px;background:none;border:0;cursor:pointer;font:500 .7rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.ver:hover{color:var(--tx)}
+.entrar{width:100%;margin-top:8px;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;background:var(--ac);color:var(--btn-tx);border:0;border-radius:6px;cursor:pointer;font:700 1rem var(--display);transition:filter .2s}
+.entrar:hover{filter:brightness(.92)}
+.entrar:focus-visible,.ver:focus-visible{outline:2px solid var(--ac);outline-offset:3px}
+.entrar:disabled{opacity:.6;cursor:wait}
+.error{min-height:1.4em;margin-top:14px;font:500 .85rem/1.4 var(--mono);color:var(--err)}
+.nota{margin-top:32px;font:400 .75rem/1.6 var(--mono);color:var(--mut)}
+.enlace{padding:0;background:none;border:0;cursor:pointer;font:inherit;color:var(--ac);text-decoration:underline;text-underline-offset:3px}
+.enlace:hover{filter:brightness(.85)}
+.enlace:focus-visible{outline:2px solid var(--ac);outline-offset:3px}
+
+.titulo,.pie,.caja>*{animation:sube .7s cubic-bezier(.2,.7,.2,1) both}
+.caja>:nth-child(2){animation-delay:.08s}.caja>:nth-child(3){animation-delay:.16s}.caja>:nth-child(4){animation-delay:.24s}.caja>:nth-child(5){animation-delay:.32s}
+.sacude{animation:sacude .35s}
+
+@keyframes sube{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes sacude{25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-3px)}}
+@keyframes gira{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+
+@media (max-width:860px){
+  body{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .marca{padding:28px 24px;gap:36px}
+  .titulo h1{font-size:4.2rem}
+  .pie,.arcos{display:none}
+  .acceso{padding:36px 24px 48px;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+  <aside class="marca">
+    <div class="etiqueta">Panel de administración</div>
+    <div class="titulo">
+      <h1><small>Tienda Digital</small>Dynamo</h1>
+    </div>
+    <div class="pie">DynamoDB · S3 · EC2</div>
+    <svg class="arcos" viewBox="0 0 400 400" aria-hidden="true">
+      <g fill="none" stroke="currentColor" stroke-width="1.2">
+        <circle cx="200" cy="200" r="50"/>
+        <circle cx="200" cy="200" r="95" stroke-dasharray="2 8"/>
+        <circle cx="200" cy="200" r="140"/>
+        <circle cx="200" cy="200" r="185" stroke-dasharray="40 14"/>
+      </g>
+    </svg>
+  </aside>
+
+  <main class="acceso">
+    <div class="caja">
+      <h2 id="titulo">Iniciar sesión</h2>
+      <p class="intro" id="intro">Entra para administrar los clientes, productos y ventas de la tienda.</p>
+
+      <form id="login" autocomplete="on" novalidate>
+        <div class="campo" data-reg hidden>
+          <label for="nombre">Nombre</label>
+          <input id="nombre" name="nombre" type="text" autocomplete="name" maxlength="60">
+        </div>
+        <div class="campo">
+          <label for="usuario">Usuario</label>
+          <input id="usuario" name="usuario" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required autofocus>
+        </div>
+        <div class="campo">
+          <label for="clave">Contraseña</label>
+          <input id="clave" name="clave" type="password" autocomplete="current-password" required>
+          <button type="button" class="ver" id="ver" aria-pressed="false">Ver</button>
+        </div>
+        <div class="campo" data-reg hidden>
+          <label for="clave2">Repite la contraseña</label>
+          <input id="clave2" name="clave2" type="password" autocomplete="new-password">
+        </div>
+        <div class="campo" id="campo-codigo" data-reg hidden>
+          <label for="codigo">Código de acceso</label>
+          <input id="codigo" name="codigo" type="password" autocomplete="off">
+        </div>
+        <button type="submit" class="entrar"><span>Entrar</span><span aria-hidden="true">→</span></button>
+        <p class="error" id="error" role="alert"></p>
+      </form>
+
+      <p class="nota"><span id="nota-txt">¿Aún no tienes cuenta?</span> <button type="button" class="enlace" id="cambiar">Crear cuenta</button></p>
+    </div>
+  </main>
+
+<script>
+const $ = id => document.getElementById(id);
+const f = $('login');
+const err = $('error');
+const btn = f.querySelector('.entrar');
+const rotulo = btn.firstElementChild;
+let modo = 'entrar';
+
+// ¿El servidor exige un código para crear cuentas?
+const config = fetch('/api/registro/config').then(r => r.json()).catch(() => ({}));
+
+async function cambiarModo(nuevo) {
+  modo = nuevo;
+  const reg = nuevo === 'registro';
+  const {codigo} = await config;
+  $('titulo').textContent = reg ? 'Crear cuenta' : 'Iniciar sesión';
+  $('intro').textContent = reg
+    ? 'Crea tu usuario para entrar al panel de la tienda.'
+    : 'Entra para administrar los clientes, productos y ventas de la tienda.';
+  f.querySelectorAll('[data-reg]').forEach(x => { x.hidden = !reg; });
+  $('campo-codigo').hidden = !(reg && codigo);
+  f.elements.clave.autocomplete = reg ? 'new-password' : 'current-password';
+  rotulo.textContent = reg ? 'Crear cuenta' : 'Entrar';
+  $('nota-txt').textContent = reg ? '¿Ya tienes cuenta?' : '¿Aún no tienes cuenta?';
+  $('cambiar').textContent = reg ? 'Iniciar sesión' : 'Crear cuenta';
+  err.textContent = '';
+  (reg ? f.elements.nombre : f.elements.usuario).focus();
+}
+
+$('cambiar').addEventListener('click', () => cambiarModo(modo === 'entrar' ? 'registro' : 'entrar'));
+
+$('ver').addEventListener('click', e => {
+  const oculto = f.elements.clave.type === 'password';
+  [f.elements.clave, f.elements.clave2].forEach(c => { c.type = oculto ? 'text' : 'password'; });
+  e.target.textContent = oculto ? 'Ocultar' : 'Ver';
+  e.target.setAttribute('aria-pressed', oculto);
+});
+
+function fallo(texto) {
+  err.textContent = texto;
+  f.classList.remove('sacude');
+  void f.offsetWidth;
+  f.classList.add('sacude');
+  btn.disabled = false;
+  rotulo.textContent = modo === 'registro' ? 'Crear cuenta' : 'Entrar';
+}
+
+f.addEventListener('submit', async e => {
+  e.preventDefault();
+  err.textContent = '';
+  const reg = modo === 'registro';
+  const datos = {usuario: f.elements.usuario.value.trim(), clave: f.elements.clave.value};
+  if (!datos.usuario || !datos.clave) return fallo('Escribe tu usuario y tu contraseña.');
+
+  if (reg) {
+    datos.nombre = f.elements.nombre.value.trim();
+    datos.codigo = f.elements.codigo.value.trim();
+    if (!datos.nombre) return fallo('Escribe tu nombre.');
+    if (!/^[a-zA-Z0-9._-]{3,30}$/.test(datos.usuario)) return fallo('El usuario debe tener de 3 a 30 caracteres: letras, números, punto, guion o guion bajo.');
+    if (datos.clave.length < 8) return fallo('La contraseña debe tener al menos 8 caracteres.');
+    if (datos.clave !== f.elements.clave2.value) return fallo('Las contraseñas no coinciden.');
+    if (!$('campo-codigo').hidden && !datos.codigo) return fallo('Escribe el código de acceso.');
+  }
+
+  btn.disabled = true;
+  rotulo.textContent = reg ? 'Creando…' : 'Entrando…';
+  try {
+    const r = await fetch(reg ? '/api/registro' : '/api/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(datos)
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d.error || 'No se pudo completar la operación');
+    location.href = '/';
+  } catch (ex) {
+    fallo(ex.message);
+    if (!reg) f.elements.clave.select();
+  }
+});
+</script>
+</body>
+</html>
