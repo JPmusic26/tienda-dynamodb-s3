@@ -12,6 +12,11 @@
     },
     {
       "Effect": "Allow",
+      "Action": ["dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:CreateTable", "dynamodb:DescribeTable"],
+      "Resource": "arn:aws:dynamodb:us-east-1:*:table/usuarios"
+    },
+    {
+      "Effect": "Allow",
       "Action": ["s3:PutObject", "s3:GetObject", "s3:ListBucket"],
       "Resource": ["arn:aws:s3:::jorge-privado", "arn:aws:s3:::jorge-privado/*"]
     }
