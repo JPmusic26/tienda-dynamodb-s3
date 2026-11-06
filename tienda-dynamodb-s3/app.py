@@ -8,6 +8,7 @@ from decimal import Decimal
 
 import boto3
 from botocore.exceptions import ClientError
+from flask_wtf.csrf import CSRFError, CSRFProtect, generate_csrf
 from flask import Flask, jsonify, redirect, request, send_from_directory, session
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
@@ -38,12 +39,15 @@ app.config.update(
     SESSION_COOKIE_SAMESITE="Lax",
     SESSION_COOKIE_SECURE=os.getenv("COOKIE_SEGURA") == "1",  # activar cuando haya HTTPS
     PERMANENT_SESSION_LIFETIME=timedelta(hours=8),
+    WTF_CSRF_TIME_LIMIT=None,  # el token dura lo mismo que la sesión
 )
+csrf = CSRFProtect(app)  # exige el token CSRF en todas las peticiones POST/PUT/DELETE
 
 USUARIOS = dynamodb.Table(os.getenv("TABLA_USUARIOS", "usuarios"))
 # Si se define, quien quiera crear una cuenta debe escribir este código.
 CODIGO_REGISTRO = os.getenv("CODIGO_REGISTRO", "")
-HASH_FALSO = generate_password_hash("sin-usuario", method="pbkdf2:sha256")
+# Hash de una contraseña aleatoria que nadie conoce: solo sirve para igualar el tiempo de respuesta
+HASH_FALSO = generate_password_hash(secrets.token_urlsafe(32), method="pbkdf2:sha256")
 INTENTOS = {}  # ip -> momentos de los intentos fallidos recientes
 MAX_INTENTOS, VENTANA = 5, 300  # 5 fallos cada 5 minutos
 
@@ -79,6 +83,18 @@ def siguiente_id(nombre):
         if m:
             numeros.append(int(m.group(1)))
     return f"{prefijo}{(max(numeros) if numeros else 0) + 1:03d}"
+
+
+_DUENO = {}
+
+
+def dueno_bucket():
+    """ID de la cuenta AWS dueña del bucket (env BUCKET_OWNER o la cuenta del rol actual)."""
+    if "id" not in _DUENO:
+        _DUENO["id"] = os.getenv("BUCKET_OWNER") or boto3.client(
+            "sts", region_name=REGION
+        ).get_caller_identity()["Account"]
+    return _DUENO["id"]
 
 
 def con_foto(p):
@@ -160,7 +176,7 @@ def guardar_usuario(fila):
         USUARIOS.put_item(Item=fila, ConditionExpression=condicion)
 
 
-RUTAS_LIBRES = {"pagina_login", "iniciar_sesion", "config_registro", "registrarse"}
+RUTAS_LIBRES = {"pagina_login", "iniciar_sesion", "config_registro", "registrarse", "token_csrf"}
 
 
 @app.before_request
@@ -170,6 +186,16 @@ def exigir_sesion():
     if request.path.startswith("/api/"):
         return jsonify(error="Tu sesión expiró. Inicia sesión de nuevo."), 401
     return redirect("/login")
+
+
+@app.errorhandler(CSRFError)
+def error_csrf(e):
+    return jsonify(error="Token de seguridad inválido. Recarga la página."), 400
+
+
+@app.get("/api/csrf")
+def token_csrf():
+    return jsonify(token=generate_csrf())
 
 
 @app.get("/login")
@@ -331,9 +357,12 @@ def nuevo_producto():
 
 @app.get("/api/s3/archivos")
 def archivos_s3():
-    r = s3.list_objects_v2(Bucket=BUCKET, Prefix="productos/")
+    r = s3.list_objects_v2(
+        Bucket=BUCKET, Prefix="productos/", ExpectedBucketOwner=dueno_bucket()
+    )
     return jsonify([{"archivo": o["Key"], "bytes": o["Size"]} for o in r.get("Contents", [])])
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=80)
+    # Por defecto solo escucha en local; en el servidor define HOST en el servicio systemd
+    app.run(host=os.getenv("HOST", "127.0.0.1"), port=int(os.getenv("PORT", "80")))

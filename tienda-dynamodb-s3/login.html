@@ -102,7 +102,7 @@ body{min-height:100vh;min-height:100dvh;display:grid;grid-template-columns:1.15f
         </div>
         <div class="campo">
           <label for="usuario">Usuario</label>
-          <input id="usuario" name="usuario" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required autofocus>
+          <input id="usuario" name="usuario" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required>
         </div>
         <div class="campo">
           <label for="clave">Contraseña</label>
@@ -192,9 +192,10 @@ f.addEventListener('submit', async e => {
   btn.disabled = true;
   rotulo.textContent = reg ? 'Creando…' : 'Entrando…';
   try {
+    const {token} = await (await fetch('/api/csrf')).json();
     const r = await fetch(reg ? '/api/registro' : '/api/login', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json', 'X-CSRFToken': token},
       body: JSON.stringify(datos)
     });
     const d = await r.json().catch(() => ({}));
@@ -205,6 +206,7 @@ f.addEventListener('submit', async e => {
     if (!reg) f.elements.clave.select();
   }
 });
+document.getElementById('usuario').focus();
 </script>
 </body>
 </html>

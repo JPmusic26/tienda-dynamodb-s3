@@ -6,6 +6,8 @@ After=network.target
 WorkingDirectory=/home/ec2-user/tienda
 Environment=S3_BUCKET=jorge-privado
 Environment=AWS_REGION=us-east-1
+# Escuchar en todas las interfaces (necesario para recibir tráfico en la EC2)
+Environment=HOST=0.0.0.0
 # Genera una clave propia: python3 -c "import secrets; print(secrets.token_hex(32))"
 Environment=SECRET_KEY=CAMBIA-ESTA-CLAVE
 # Código que se pide al crear una cuenta (déjalo vacío para registro abierto)
